@@ -1,0 +1,3 @@
+100, 750, 400, 50, PlayButtonNH.png, PlayButtonH.png, map, TestWorld
+100, 670, 400, 50, PlayButtonNH.png, PlayButtonH.png, menu, MapSelection
+100, 50, 400, 50, ExitButtonNH.png, ExitButtonH.png, exit, exit
