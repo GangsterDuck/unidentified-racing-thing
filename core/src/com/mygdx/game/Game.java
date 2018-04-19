@@ -96,6 +96,7 @@ public class Game extends ApplicationAdapter{
             try {
                 mapLoad("TestWorld");
             } catch (FileNotFoundException why) {
+                System.out.println(why);
                 System.out.println("ERROR");
                 gameState=1;
             }
