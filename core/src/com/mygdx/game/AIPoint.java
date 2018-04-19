@@ -24,7 +24,7 @@ public class AIPoint extends Zone{
     AIPoint(int midX, int midY, int width, int height, int pointNum, ArrayList<AICommand> commands){
         super(midX,midY,width,height);
         if(debugTexture==null){
-            debugTexture = new Texture("D:\\# - Java\\test\\debug\\AIPointSq.png");
+            debugTexture = new Texture("debug\\AIPointSq.png");
         }
         this.pointNum = ""+pointNum;
         this.commands = commands;

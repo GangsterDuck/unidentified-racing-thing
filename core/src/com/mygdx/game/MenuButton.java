@@ -33,7 +33,7 @@ public class MenuButton extends Zone{
         this.loadName = loadName;
         this.loadType = loadType;
         if(debugTexture==null){
-            debugTexture = new Texture("D:\\# - Java\\test\\debug\\AIPointSq.png");
+            debugTexture = new Texture("debug\\AIPointSq.png");
         }
     }
 

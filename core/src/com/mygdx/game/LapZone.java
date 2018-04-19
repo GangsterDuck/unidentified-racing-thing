@@ -18,7 +18,7 @@ public class LapZone extends Zone {
     public LapZone(float midX, float midY, float width, float height, int zoneNum){
         super(midX, midY, width, height);
         if(debugTexture==null){
-            debugTexture = new Texture("D:\\# - Java\\test\\debug\\zoneSq.png");
+            debugTexture = new Texture("debug\\zoneSq.png");
         }
         this.zoneNum = zoneNum;
 

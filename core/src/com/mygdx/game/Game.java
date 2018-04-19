@@ -195,7 +195,7 @@ public class Game extends ApplicationAdapter{
 
         // Texture Loading
         // Gets .txt file that has the names and places for all of the Maps textures
-        Scanner scan = new Scanner(new File("D:\\# - Java\\test\\levels\\"+mapName+"\\WorldTextures.txt"));
+        Scanner scan = new Scanner(new File("levels\\"+mapName+"\\WorldTextures.txt"));
         String textureLine;
         String[] splitTextureLine;
         Texture temptex;
@@ -210,7 +210,7 @@ public class Game extends ApplicationAdapter{
             // If the length is the correct amount, assume it's correct and make an GameTexture object
             if(splitTextureLine.length == 4) {
                 if (splitTextureLine[2].equalsIgnoreCase("B")) {
-                    temptex = new Texture("D:\\# - Java\\test\\levels\\" + mapName + "\\" + splitTextureLine[3]);
+                    temptex = new Texture("levels\\" + mapName + "\\" + splitTextureLine[3]);
                     background.add(
                             new GameTexture(
                                     Integer.parseInt(splitTextureLine[0]),
@@ -218,7 +218,7 @@ public class Game extends ApplicationAdapter{
                                     temptex
                             ));
                 } else if (splitTextureLine[2].equalsIgnoreCase("F")) {
-                    temptex = new Texture("D:\\# - Java\\test\\levels\\" + mapName + "\\" + splitTextureLine[3]);
+                    temptex = new Texture("levels\\" + mapName + "\\" + splitTextureLine[3]);
                     foreground.add(
                             new GameTexture(
                                     Integer.parseInt(splitTextureLine[0]),
@@ -229,7 +229,7 @@ public class Game extends ApplicationAdapter{
             }
         }
         scan.close();
-        scan = new Scanner(new File("D:\\# - Java\\test\\levels\\"+mapName+"\\Zones.txt"));
+        scan = new Scanner(new File("levels\\"+mapName+"\\Zones.txt"));
         String zoneLine;
         String[] splitZoneLine;
         while(scan.hasNextLine()){
@@ -251,7 +251,7 @@ public class Game extends ApplicationAdapter{
         scan.close();
 
         // physWorld Wall Loading
-        scan = new Scanner(new File("D:\\# - Java\\test\\levels\\"+mapName+"\\WorldWalls.txt"));
+        scan = new Scanner(new File("levels\\"+mapName+"\\WorldWalls.txt"));
         String wallLine;
         String[] splitWallLine;
         while(scan.hasNextLine()){
@@ -332,8 +332,8 @@ public class Game extends ApplicationAdapter{
         zones.clear();
         aiPoints.clear();
 
-        background.add(new GameTexture(0,0,new Texture("D:\\# - Java\\test\\menus\\"+menuName+"\\Background.png")));
-        Scanner scan = new Scanner(new File("D:\\# - Java\\test\\menus\\"+menuName+"\\MenuButtons.txt"));
+        background.add(new GameTexture(0,0,new Texture("menus\\"+menuName+"\\Background.png")));
+        Scanner scan = new Scanner(new File("menus\\"+menuName+"\\MenuButtons.txt"));
         String buttonLine;
         String[] splitButtonLine;
         while(scan.hasNextLine()){
@@ -349,8 +349,8 @@ public class Game extends ApplicationAdapter{
                            Integer.parseInt(splitButtonLine[1]),
                            Integer.parseInt(splitButtonLine[2]),
                            Integer.parseInt(splitButtonLine[3]),
-                           new Texture("D:\\# - Java\\test\\menus\\"+menuName+"\\"+splitButtonLine[4]),
-                           new Texture("D:\\# - Java\\test\\menus\\"+menuName+"\\"+splitButtonLine[5]),
+                           new Texture("menus\\"+menuName+"\\"+splitButtonLine[4]),
+                           new Texture("menus\\"+menuName+"\\"+splitButtonLine[5]),
                            splitButtonLine[6],
                            splitButtonLine[7]
                         ));
@@ -386,7 +386,7 @@ public class Game extends ApplicationAdapter{
                         40, false, false);
             }
             tempGUI.draw(batch, "LAPS", 1311, 700);
-            tempGUI.draw(batch, cars.get(0).lapOn+"/3", 1311,645);
+            tempGUI.draw(batch, plyr.currentLaps+"/"+plyr.finishLaps, 1311,645);
             if(false/*finished*/){
                 tempGUI.draw(batch, "FINISH", 1000, 500);
             }
@@ -526,7 +526,7 @@ public class Game extends ApplicationAdapter{
             for(LapZone zone : zones){
                 if(zone.isWithin((int)car.getX(),(int)car.getY())){
                     if(car.zone==0 && zone.getZoneNum()==1){
-                        car.lapOn++;
+                        plyr.currentLaps++;
                     }
                     /**
                     if(car.lapOn>winLaps){

@@ -13,7 +13,7 @@ public abstract class Controller {
      */
     Controller(Car car){
         this.car = car;
-        currentLaps = 0;
+        currentLaps = 1;
         finishLaps = 3;
         finished = false;
     }
