@@ -12,12 +12,10 @@ import static com.mygdx.game.Game.getPhysWorld;
 public class Car
 {
     String name;
-    Body body;
+    private Body body;
     static World physWorld;
     private Texture texture;
     int zone = -1;
-    // TODO: Move to Controller?
-    int lapOn = 1;
 
     /**
      * TEST WORLD CAR CONSTRUCTOR
@@ -52,7 +50,7 @@ public class Car
             physWorld = getPhysWorld();
         }
         name = "";
-        texture = new Texture("LongerTestCar.png");
+        texture = new Texture("NewTestCar.png");
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.DynamicBody;
         def.position.set(x/SCALE,y/SCALE);
@@ -60,7 +58,7 @@ public class Car
         body = physWorld.createBody(def);
         body.setSleepingAllowed(false);
         PolygonShape rect = new PolygonShape();
-        rect.setAsBox(20/SCALE,40/SCALE);
+        rect.setAsBox(texture.getWidth()/2/SCALE,texture.getHeight()/2/SCALE);
         FixtureDef fDef = new FixtureDef();
         fDef.shape = rect;
         fDef.density = 0.25f;
@@ -115,7 +113,6 @@ public class Car
         texture.dispose();
     }
 
-    //TODO: Decide if unneeded?
     /**
      * Accessor for car's physWorld body
      * @return car's physWorld body
@@ -132,7 +129,7 @@ public class Car
         return texture;
     }
 
-    // TODO: Check if actually midpoint, have feeling it may be wrong
+    // TODO: Midpoint should be something with sin, cos, tan, or something.
     /**
      * Accessor for Cars X position. Gotten from body and moved to midpoint!
      * @return Cars x position (midpoint)
@@ -141,7 +138,7 @@ public class Car
         return body.getPosition().x*SCALE- texture.getWidth()/2;
     }
 
-    // TODO: Check if actually midpoint, have feeling it may be wrong
+    // TODO: Midpoint should be something with sin, cos, tan, or something.
     /**
      * Accessor for Cars Y position. Gotten from body and moved to midpoint!
      * @return Cars y position. (midpoint)

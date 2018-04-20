@@ -22,8 +22,8 @@ public class MenuButton extends Zone{
      * @param height height of the catching zone of the point
      * @param NonHighlightedTexture Button Texture with nothing within button
      * @param HighlightedTexture Button Texture with something within button
-     * @param loadType //TODO: Get this stuff working
-     * @param loadName
+     * @param loadType The type of object loaded when the button is pressed (Currently: Map, Menu, Exit)
+     * @param loadName The name of the object to be loaded when the button is pressed
      */
     MenuButton(float bottomX, float bottomY, float width, float height, Texture NonHighlightedTexture, Texture HighlightedTexture, String loadType, String loadName ){
         super((bottomX+(width/2))*SCALE, (bottomY+(height/2))*SCALE, width*SCALE, height*SCALE);
@@ -91,9 +91,8 @@ public class MenuButton extends Zone{
         }
     }
 
-    //TODO: Better Explain? Change Wording?
     /**
-     * Gets the loading data for the loader
+     * Returns data for loading. Returns in Arraylist Slot 0 the type of loading to happen. Returns in Arraylist Slot 1, the name of the file to load.
      * @return loading data
      */
     public ArrayList<String> getLoadType(){

@@ -114,11 +114,11 @@ public class Game extends ApplicationAdapter{
     public void render(){
         doGraphics();
         if(gameState == -1 || gameState == 2) { // Dev Mode or Game
-            if(true/*!finished*/) {
+            if(!plyr.finished) {
                 physWorld.step(Gdx.graphics.getDeltaTime(), 6, 2);
             }
             gameTick();
-            if(false/*finished*/){
+            if(plyr.finished){
                 if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)){
                     gameState = 0;
                     loadCatcher.add("menu");
@@ -295,11 +295,11 @@ public class Game extends ApplicationAdapter{
         aiPoints.add(new AIPoint(177, 790, 50, 50, 10, new ArrayList<AICommand>()));
         aiPoints.add(new AIPoint(350, 930, 50, 50, 11, new ArrayList<AICommand>()));
         cars.add(new Car(500, 900));
-        cars.add(new Car());
+        //cars.add(new Car());
         cars.add(new Car(350, 900));
         plyr = new PlayerController(cars.get(0));
-        ai2 = new AIController(cars.get(1),aiPoints.get(0));
-        ai = new AIController(cars.get(2),aiPoints.get(0));
+        //ai2 = new AIController(cars.get(1),aiPoints.get(0));
+        ai = new AIController(cars.get(1),aiPoints.get(0));
         gameState = 2;
     }
 
@@ -382,9 +382,9 @@ public class Game extends ApplicationAdapter{
         if(gameState==2 || gameState==-1) {
             for (Car car : cars) {
                 batch.draw(car.getTexture(), car.getX(), car.getY(),
-                        20, 40, 40, 80, 1, 1,
-                        car.getAngle(), 0, 0, 40,
-                        40, false, false);
+                        car.getTexture().getWidth()/2, car.getTexture().getHeight()/2, car.getTexture().getWidth(), car.getTexture().getHeight(), 1, 1,
+                        car.getAngle(), 0, 0, car.getTexture().getWidth(),
+                        car.getTexture().getHeight(), false, false);
             }
             tempGUI.draw(batch, "LAPS", 1311, 700);
             tempGUI.draw(batch, plyr.currentLaps+"/"+plyr.finishLaps, 1311,645);
@@ -401,13 +401,15 @@ public class Game extends ApplicationAdapter{
                 batch.draw(point.getDebugTexture(),point.x2*SCALE-10,point.y1*SCALE);
                 forDebug.draw(batch, "P"+ point.pointNum,point.midx*SCALE-10,point.midy*SCALE+5);
             }
-            //TODO Fix LapZones. Where coordinates are gotten from need to be switched to (x,y,width,height)
             for(LapZone zone : zones){
                 batch.draw(zone.getDebugTexture(),zone.x1*SCALE,zone.y1*SCALE);
                 batch.draw(zone.getDebugTexture(),zone.x2*SCALE-10,zone.y2*SCALE-10);
                 batch.draw(zone.getDebugTexture(),zone.x1*SCALE,zone.y2*SCALE-10);
                 batch.draw(zone.getDebugTexture(),zone.x2*SCALE-10,zone.y1*SCALE);
                 forDebug.draw(batch, "Zone "+zone.getZoneNum(),zone.midx*SCALE-10, zone.midy*SCALE);
+            }
+            if(cars.size()>0){
+                forDebug.draw(batch, "Zone: "+cars.get(0).zone,10,120);
             }
 
             forDebug.draw(batch,"Debug On", 10,20);
@@ -430,7 +432,6 @@ public class Game extends ApplicationAdapter{
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
             showDebug = !showDebug;
         }
-
         if(gameState==1){
             int x = Gdx.input.getX();
             int y = 1080-Gdx.input.getY();
@@ -443,74 +444,8 @@ public class Game extends ApplicationAdapter{
                 }
             }
         }
-        // TODO: REDO INPUTS
-        if(gameState==2) {
-            /*
-            Car car = cars.get(0);
-            Body body = car.getBody();
-            //if()
-            if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-                double xAccelChange = -Math.sin(body.getAngle());
-                double yAccelChange = Math.cos(body.getAngle());
-                body.setLinearVelocity((float) (body.getLinearVelocity().x + .25 * xAccelChange), (float) (body.getLinearVelocity().y + .25 * yAccelChange));
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-                double velocity = Math.sqrt(Math.pow(body.getLinearVelocity().x, 2) + Math.pow(body.getLinearVelocity().y, 2)) - .0125;
-                if (velocity < 0) {
-                    body.setLinearVelocity(0, 0);
-                } else {
-                    double xAccelChange = -Math.sin(body.getAngle());
-                    double yAccelChange = Math.cos(body.getAngle());
-                    body.setLinearVelocity((float) (body.getLinearVelocity().x - .0125 * xAccelChange), (float) (body.getLinearVelocity().y - .0125 * yAccelChange));
-                }
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-                double turnRate;
-                double velocity;
-                if (body.getLinearVelocity().x == 0 && body.getLinearVelocity().y == 0) {
-                    turnRate = 0;
-                    velocity = 0;
-                } else {
-                    velocity = Math.sqrt(Math.pow(body.getLinearVelocity().x, 2) + Math.pow(body.getLinearVelocity().y, 2));
-                }
-
-                if (velocity > 1) {
-                    turnRate = -Math.log(velocity) * .0225 + .2;//Math.PI;
-                } else if (velocity > 0) {
-                    turnRate = .2;
-                } else {
-                    turnRate = velocity;
-                }
-                double newAngle = body.getAngle() + (.25 * turnRate);
-                body.setTransform(body.getPosition().x, body.getPosition().y, (float) newAngle);
-                double xAccelChange = -Math.sin(body.getAngle());
-                double yAccelChange = Math.cos(body.getAngle());
-                body.setLinearVelocity((float) (velocity * xAccelChange), (float) (velocity * yAccelChange));
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-                double turnRate;
-                double velocity;
-                if (body.getLinearVelocity().x == 0 && body.getLinearVelocity().y == 0) {
-                    turnRate = 0;
-                    velocity = 0;
-                } else {
-                    velocity = Math.sqrt(Math.pow(body.getLinearVelocity().x, 2) + Math.pow(body.getLinearVelocity().y, 2));
-                }
-
-                if (velocity > 1) {
-                    turnRate = -Math.log(velocity) * .0225 + .2;//Math.PI;
-                } else if (velocity > 0) {
-                    turnRate = .2;
-                } else {
-                    turnRate = 0;
-                }
-                double newAngle = body.getAngle() - (.25 * turnRate);
-                body.setTransform(body.getPosition().x, body.getPosition().y, (float) newAngle);
-                double xAccelChange = -Math.sin(body.getAngle());
-                double yAccelChange = Math.cos(body.getAngle());
-                body.setLinearVelocity((float) (velocity * xAccelChange), (float) (velocity * yAccelChange));
-            }
-            */
+        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+            Gdx.app.exit();
         }
     }
 
@@ -521,13 +456,20 @@ public class Game extends ApplicationAdapter{
         if(ai!=null) {
             plyr.drive();
             ai.drive();
-            ai2.drive();
+            //ai2.drive();
         }
         for(Car car : cars){
             for(LapZone zone : zones){
-                if(zone.isWithin((int)car.getX(),(int)car.getY())){
+                if(zone.isWithin(car.getX()/SCALE,car.getY()/SCALE)){
                     if(car.zone==0 && zone.getZoneNum()==1){
-                        plyr.currentLaps++;
+                        if(plyr.car == car){
+                            if(plyr.currentLaps==plyr.finishLaps){
+                                plyr.finished = true;
+                            }
+                            else {
+                                plyr.currentLaps++;
+                            }
+                        }
                     }
                     /**
                     if(car.lapOn>winLaps){

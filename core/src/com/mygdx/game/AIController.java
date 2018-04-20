@@ -12,7 +12,7 @@ import static com.mygdx.game.Game.SCALE;
 public class AIController extends Controller {
     
     AIPoint target;
-    static ArrayList<AIPoint> points;
+    static ArrayList<AIPoint> points; // TODO: Remove AIPoints from Game class and consolidate them in just AIController?
     
     AIController(Car car, AIPoint startingTarget){
         super(car);
@@ -58,9 +58,9 @@ public class AIController extends Controller {
         float carX = body.getPosition().x;
         float carY = body.getPosition().y;
         p2.sub(body.getPosition());
-        float degree = p2.angle();
-        float currentDegree = (float)Math.toDegrees(body.getAngle())-90;
-
+        float degree = Util.boundAngle(p2.angle());
+        float currentDegree = (float)Util.boundAngle(Math.toDegrees(body.getAngle())-90);
+        //Todo: Fix it all...
         double turnRate;
         double velocity;
         if (body.getLinearVelocity().x == 0 && body.getLinearVelocity().y == 0) {
@@ -79,10 +79,10 @@ public class AIController extends Controller {
 
         double newAngle = body.getAngle();
         if(Util.compareAngles(currentDegree,degree)==-1){
-            newAngle = body.getAngle() - (.25 * turnRate);
+            newAngle = Util.boundAngle(body.getAngle() - (.25 * turnRate));
         }
         else if(Util.compareAngles(currentDegree,degree)==1){
-            newAngle = body.getAngle() + (.25 * turnRate);
+            newAngle = Util.boundAngle(body.getAngle() + (.25 * turnRate));
         }
         body.setTransform(body.getPosition().x, body.getPosition().y, (float) newAngle);
         double xAccelChange = -Math.sin(body.getAngle());

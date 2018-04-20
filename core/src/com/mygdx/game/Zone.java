@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import static com.mygdx.game.Game.SCALE;
 
 public abstract class Zone {
+    // ALL SUBCLASSES SHOULD HAVE A STATIC DESTROY FUNCTION
     float x1;
     float y1;
     float x2;
@@ -43,12 +44,4 @@ public abstract class Zone {
     }
 
     public abstract Texture getDebugTexture();
-
-    /**
-     * Disposes of the debug texture
-     * WARNING: Texture shared between all zones.
-     * WARNING: Run before program end.
-     */
-    //TODO: Figure out this stuff, cannot have static and abstract modifiers
-    //public abstract void destroy();
 }

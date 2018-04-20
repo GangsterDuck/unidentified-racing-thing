@@ -46,7 +46,10 @@ public class AIPoint extends Zone{
      */
     public static void destroy(){
         // Proper Disposal
-        debugTexture.dispose();
+        if(debugTexture!=null) {
+            debugTexture.dispose();
+            debugTexture=null;
+        }
     }
 
     // Probably redo to make it actually useful

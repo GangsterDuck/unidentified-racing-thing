@@ -45,6 +45,9 @@ public class LapZone extends Zone {
      * WARNING: Run before ending program
      */
     public static void destroy(){
-        debugTexture.dispose();
+        if(debugTexture!=null) {
+            debugTexture.dispose();
+            debugTexture=null;
+        }
     }
 }
