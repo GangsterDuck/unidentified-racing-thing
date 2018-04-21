@@ -28,15 +28,16 @@ public class Wall {
         if(physWorld == null){
             physWorld = Game.getPhysWorld();
         }
-        //TODO: Clean up?
+        midy = ((height/2)+y) /SCALE;
+        midx = ((width/2)+x)/SCALE;
+
+        // physWorld wall creation
         BodyDef wallDef;
         PolygonShape wallShape = new PolygonShape();
         FixtureDef wallFixDef = new FixtureDef();
         wallFixDef.density = .25f;
         wallFixDef.friction = .2f;
-        wallFixDef.restitution = .00000001f;
-        midy = ((height/2)+y) /SCALE;
-        midx = ((width/2)+x)/SCALE;
+        wallFixDef.restitution = .001f;
         wallDef = new BodyDef();
         wallDef.angle = (float)Math.toRadians(rotation);
         wallDef.type = BodyDef.BodyType.StaticBody;

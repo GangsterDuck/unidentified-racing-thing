@@ -38,8 +38,8 @@ public class Car
         FixtureDef fDef = new FixtureDef();
         fDef.shape = rect;
         fDef.density = 0.25f;
-        fDef.friction = 84f;
-        fDef.restitution = .000000000001f;
+        fDef.friction = 5f;
+        fDef.restitution = .001f;
         body.createFixture(fDef);
         body.setLinearDamping(5f);
         body.setAngularDamping(5f);
@@ -62,7 +62,7 @@ public class Car
         FixtureDef fDef = new FixtureDef();
         fDef.shape = rect;
         fDef.density = 0.25f;
-        fDef.friction = 84f;
+        fDef.friction = 5f;
         fDef.restitution = .000000000001f;
         body.createFixture(fDef);
         body.setLinearDamping(5f);
@@ -102,6 +102,66 @@ public class Car
         body.createFixture(fixtureDef);
         body.setLinearDamping(5f);
         body.setAngularDamping(5f);
+    }
+
+    /**
+     * Uses the Cars Brakes
+     * @param str how hard the brakes are used (0 to 1)
+     */
+    public void brake(double str){
+        double velocity = Math.sqrt(Math.pow(body.getLinearVelocity().x, 2) + Math.pow(body.getLinearVelocity().y, 2)) - .0125;
+        if (velocity < 0) {
+            body.setLinearVelocity(0, 0);
+        } else {
+            double xAccelChange = -Math.sin(body.getAngle());
+            double yAccelChange = Math.cos(body.getAngle());
+            body.setLinearVelocity((float) (body.getLinearVelocity().x - .0125 * xAccelChange * str), (float) (body.getLinearVelocity().y - .0125 * yAccelChange * str));
+        }
+    }
+
+    /**
+     * Accelerates Car forwards
+     * @param str strength of acceleration (0 to 1)
+     */
+    public void accelerate(double str){
+        double xAccelChange = -Math.sin(body.getAngle());
+        double yAccelChange = Math.cos(body.getAngle());
+        body.setLinearVelocity((float) (body.getLinearVelocity().x + .25 * xAccelChange * str), (float) (body.getLinearVelocity().y + .25 * yAccelChange* str));
+    }
+
+    /**
+     * Turns the car
+     * @param dir the direction turning
+     * @param str strength of the turn (0 to 1)
+     */
+    public void turn(int dir, double str){
+        double turnRate;
+        double velocity;
+        if (body.getLinearVelocity().x == 0 && body.getLinearVelocity().y == 0) {
+            velocity = 0;
+        } else {
+            velocity = Math.sqrt(Math.pow(body.getLinearVelocity().x, 2) + Math.pow(body.getLinearVelocity().y, 2));
+        }
+
+        if (velocity > 1) {
+            turnRate = -Math.log(velocity) * .0225 + .2;//Math.PI;
+        } else if (velocity > 0) {
+            turnRate = .2;
+        } else {
+            turnRate = 0;
+        }
+
+        double newAngle = body.getAngle();
+        if(dir == -1){
+            newAngle = body.getAngle() - (.25 * turnRate * str);
+        }
+        else if(dir==1){
+            newAngle = body.getAngle() + (.25 * turnRate * str);
+        }
+        body.setTransform(body.getPosition().x, body.getPosition().y, (float) newAngle);
+        double xAccelChange = -Math.sin(body.getAngle());
+        double yAccelChange = Math.cos(body.getAngle());
+        body.setLinearVelocity((float) (velocity * xAccelChange), (float) (velocity * yAccelChange));
     }
 
     /**

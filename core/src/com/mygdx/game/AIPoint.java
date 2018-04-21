@@ -38,8 +38,6 @@ public class AIPoint extends Zone{
         return debugTexture;
     }
 
-
-    // Stuff for non game purposes
     /**
      * Properly disposes of the texture. Destroy sounds cooler. Yes, I am lame.
      * WARNING: Run before ending the program.
@@ -52,7 +50,6 @@ public class AIPoint extends Zone{
         }
     }
 
-    // Probably redo to make it actually useful
     /**
      * Overridden toString method.
      * @return string of AIPoint.

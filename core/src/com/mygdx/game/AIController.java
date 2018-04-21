@@ -12,8 +12,8 @@ import static com.mygdx.game.Game.SCALE;
 public class AIController extends Controller {
     
     AIPoint target;
-    static ArrayList<AIPoint> points; // TODO: Remove AIPoints from Game class and consolidate them in just AIController?
-    
+    static ArrayList<AIPoint> points;
+
     AIController(Car car, AIPoint startingTarget){
         super(car);
         // Connects the AIController to the list of AIPoints created in Game when the maps are loaded
@@ -47,51 +47,19 @@ public class AIController extends Controller {
     }
 
     /**
-     * A Trash Heap Attacks! Choose your move!:
-     * TODO: Clean Up
-     * TODO: Make Actual Java Doc
+     * Method running the AI Pathfinding, (Eventually ALL AI Descisions), and Car Turning
      */
     public void drive(){
         checkTarget();
-        Body body = car.getBody();
         Vector2 p2 = new Vector2(target.midx,target.midy);
-        float carX = body.getPosition().x;
-        float carY = body.getPosition().y;
-        p2.sub(body.getPosition());
+        p2.sub(car.getBody().getPosition());
         float degree = Util.boundAngle(p2.angle());
-        float currentDegree = (float)Util.boundAngle(Math.toDegrees(body.getAngle())-90);
-        //Todo: Fix it all...
-        double turnRate;
-        double velocity;
-        if (body.getLinearVelocity().x == 0 && body.getLinearVelocity().y == 0) {
-            velocity = 0;
-        } else {
-            velocity = Math.sqrt(Math.pow(body.getLinearVelocity().x, 2) + Math.pow(body.getLinearVelocity().y, 2));
-        }
+        float currentDegree = (float)Util.boundAngle(Math.toDegrees(car.getBody().getAngle())-90);
 
-        if (velocity > 1) {
-            turnRate = -Math.log(velocity) * .0225 + .2;//Math.PI;
-        } else if (velocity > 0) {
-            turnRate = .2;
-        } else {
-            turnRate = 0;
-        }
-
-        double newAngle = body.getAngle();
-        if(Util.compareAngles(currentDegree,degree)==-1){
-            newAngle = Util.boundAngle(body.getAngle() - (.25 * turnRate));
-        }
-        else if(Util.compareAngles(currentDegree,degree)==1){
-            newAngle = Util.boundAngle(body.getAngle() + (.25 * turnRate));
-        }
-        body.setTransform(body.getPosition().x, body.getPosition().y, (float) newAngle);
-        double xAccelChange = -Math.sin(body.getAngle());
-        double yAccelChange = Math.cos(body.getAngle());
-        body.setLinearVelocity((float) (velocity * xAccelChange), (float) (velocity * yAccelChange));
-
-        // This Always forces the AI to Drive forwards at a speed. This Should be removed when implementing actual AI or changed to accommodate AI changes
-        xAccelChange = -Math.sin(body.getAngle());
-        yAccelChange = Math.cos(body.getAngle());
-        body.setLinearVelocity((float) (body.getLinearVelocity().x + .125 * xAccelChange), (float) (body.getLinearVelocity().y + .125 * yAccelChange));
+        // Todo: Set up AI going at different speeds. based off the Points and stuff....
+        // Decides direction to turn and turns the car
+        car.turn(Util.compareAngles(currentDegree,degree), 1);
+        // AI accelerates forward
+        car.accelerate(.75);
     }
 }

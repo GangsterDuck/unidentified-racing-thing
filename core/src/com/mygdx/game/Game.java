@@ -156,7 +156,13 @@ public class Game extends ApplicationAdapter{
             }
         }
         else{ // TODO: Safety Net: Loads to main menu and resets game state to 1(Menu)
-
+            try{
+                menuLoad("MainMenu");
+                gameState=1;
+            }catch (FileNotFoundException ex){
+                System.out.print(ex);
+                Gdx.app.exit();
+            }
         }
 
         checkInputs();
@@ -388,7 +394,7 @@ public class Game extends ApplicationAdapter{
             }
             tempGUI.draw(batch, "LAPS", 1311, 700);
             tempGUI.draw(batch, plyr.currentLaps+"/"+plyr.finishLaps, 1311,645);
-            if(false/*finished*/){
+            if(plyr.finished){
                 tempGUI.draw(batch, "FINISH", 1000, 500);
             }
         }
@@ -453,8 +459,8 @@ public class Game extends ApplicationAdapter{
      * Does game stuff, to get it out of render
      */
     public void gameTick(){
+        plyr.drive();
         if(ai!=null) {
-            plyr.drive();
             ai.drive();
             //ai2.drive();
         }
@@ -471,7 +477,7 @@ public class Game extends ApplicationAdapter{
                             }
                         }
                     }
-                    /**
+                    /*
                     if(car.lapOn>winLaps){
                         finished = true;
                         car.lapOn = winLaps;
