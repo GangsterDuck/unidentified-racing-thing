@@ -29,5 +29,9 @@ public class PlayerController extends Controller {
             car.turn(-1,1);
         }
 
+        if(Gdx.input.isKeyPressed(Input.Keys.Z)){
+            car.testFixture();
+        }
+
     }
 }

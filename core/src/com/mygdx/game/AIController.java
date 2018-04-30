@@ -6,22 +6,31 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static com.mygdx.game.Game.SCALE;
 
 public class AIController extends Controller {
-    
+
+    static Random rand;
     AIPoint target;
     static ArrayList<AIPoint> points;
+    double randSpeed;
 
     AIController(Car car, AIPoint startingTarget){
         super(car);
+        rand = new Random();
         // Connects the AIController to the list of AIPoints created in Game when the maps are loaded
         if(points==null){
             points = Game.aiPoints;
         }
         // Starting point, also inside the AIPoints list
         target = startingTarget;
+        double temp = 0;
+        while (temp<.5 || temp>.8 ){
+            temp = rand.nextDouble();
+        }
+        randSpeed = temp;
     }
 
     /**
@@ -30,6 +39,11 @@ public class AIController extends Controller {
      */
     public void newTarget(AIPoint newTarget){
         target = newTarget;
+        double temp = 0;
+        while (temp<.5 || temp>.8 ){
+            temp = rand.nextDouble();
+        }
+        randSpeed = temp;
     }
 
     /**
@@ -58,8 +72,8 @@ public class AIController extends Controller {
 
         // Todo: Set up AI going at different speeds. based off the Points and stuff....
         // Decides direction to turn and turns the car
-        car.turn(Util.compareAngles(currentDegree,degree), 1);
+        car.turn(Util.compareAngles(currentDegree,degree), 1.2);
         // AI accelerates forward
-        car.accelerate(.75);
+        car.accelerate(1);
     }
 }

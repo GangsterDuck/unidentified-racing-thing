@@ -18,15 +18,15 @@ public class Car
     int zone = -1;
 
     /**
-     * TEST WORLD CAR CONSTRUCTOR
-     * DO NOT USE!!!
+     * Car Constructor
+     * DEPRECATED!
      */
     public Car(){
         if(physWorld == null){
             physWorld = getPhysWorld();
         }
         name = "";
-        texture = new Texture("LongerTestCar.png");
+        texture = new Texture("NewTestCar.png");
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.DynamicBody;
         def.position.set(780/SCALE,900/SCALE);
@@ -34,7 +34,7 @@ public class Car
         body = physWorld.createBody(def);
         body.setSleepingAllowed(false);
         PolygonShape rect = new PolygonShape();
-        rect.setAsBox(20/SCALE,40/SCALE);
+        rect.setAsBox(texture.getWidth()/2/SCALE,texture.getHeight()/2/SCALE);
         FixtureDef fDef = new FixtureDef();
         fDef.shape = rect;
         fDef.density = 0.25f;
@@ -44,13 +44,14 @@ public class Car
         body.setLinearDamping(5f);
         body.setAngularDamping(5f);
         rect.dispose();
-    }
-    public Car(int x, int y){
+    }//DEPRECATED
+
+    public Car(int x, int y, String textureLOC){
         if(physWorld == null){
             physWorld = getPhysWorld();
         }
         name = "";
-        texture = new Texture("NewTestCar.png");
+        texture = new Texture(textureLOC);
         BodyDef def = new BodyDef();
         def.type = BodyDef.BodyType.DynamicBody;
         def.position.set(x/SCALE,y/SCALE);
@@ -63,7 +64,7 @@ public class Car
         fDef.shape = rect;
         fDef.density = 0.25f;
         fDef.friction = 5f;
-        fDef.restitution = .000000000001f;
+        fDef.restitution = .0001f;
         body.createFixture(fDef);
         body.setLinearDamping(5f);
         body.setAngularDamping(5f);
@@ -102,6 +103,17 @@ public class Car
         body.createFixture(fixtureDef);
         body.setLinearDamping(5f);
         body.setAngularDamping(5f);
+    }
+
+    public void testFixture(){
+        PolygonShape rect = new PolygonShape();
+        rect.setAsBox(texture.getWidth()/2/SCALE,texture.getHeight()/2/SCALE);
+        FixtureDef fDef = new FixtureDef();
+        fDef.shape = rect;
+        fDef.density = 84f;
+        fDef.friction = 5f;
+        fDef.restitution = .0001f;
+        body.createFixture(fDef);
     }
 
     /**
@@ -189,7 +201,7 @@ public class Car
         return texture;
     }
 
-    // TODO: Midpoint should be something with sin, cos, tan, or something.
+    //Warning, May Possibly be wrong
     /**
      * Accessor for Cars X position. Gotten from body and moved to midpoint!
      * @return Cars x position (midpoint)
@@ -198,7 +210,7 @@ public class Car
         return body.getPosition().x*SCALE- texture.getWidth()/2;
     }
 
-    // TODO: Midpoint should be something with sin, cos, tan, or something.
+    //Warning, may possibly be wrong
     /**
      * Accessor for Cars Y position. Gotten from body and moved to midpoint!
      * @return Cars y position. (midpoint)
@@ -214,6 +226,5 @@ public class Car
     public float getAngle(){
         return (float)(Math.toDegrees(body.getAngle()));
     }
-
 
 }

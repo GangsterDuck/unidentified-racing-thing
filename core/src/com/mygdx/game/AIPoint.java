@@ -10,7 +10,6 @@ import static com.mygdx.game.Game.SCALE;
 public class AIPoint extends Zone{
     String pointNum;
     private static Texture debugTexture;
-    ArrayList<AICommand> commands; // Commands for point
 
     /**
      * Constructor for AIPoint,
@@ -19,15 +18,13 @@ public class AIPoint extends Zone{
      * @param width width of the catching zone of the point
      * @param height height of the catching zone of the point
      * @param pointNum Currently used only for debugnaming
-     * @param commands TODO: Actually deal with this, currently just send in an empty arraylist. Sorry.
      */
-    AIPoint(int midX, int midY, int width, int height, int pointNum, ArrayList<AICommand> commands){
+    AIPoint(int midX, int midY, int width, int height, int pointNum){
         super(midX,midY,width,height);
         if(debugTexture==null){
             debugTexture = new Texture("debug\\AIPointSq.png");
         }
         this.pointNum = ""+pointNum;
-        this.commands = commands;
     }
 
     /**

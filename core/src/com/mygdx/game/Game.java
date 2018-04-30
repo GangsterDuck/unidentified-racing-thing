@@ -58,6 +58,7 @@ public class Game extends ApplicationAdapter{
     public static boolean showDebug = true;
     AIController ai; //TODO: Remove
     AIController ai2; //TODO: Remove
+    AIController ai3;
     PlayerController plyr;
     int gameState = 1;
     /*   Game States:
@@ -288,24 +289,26 @@ public class Game extends ApplicationAdapter{
         }
         scan.close();
         aiPoints.clear();
-        aiPoints.add(new AIPoint(930, 906, 50, 50, 0, new ArrayList<AICommand>()));
-        aiPoints.add(new AIPoint(1620,920,50,50, 1, new ArrayList<AICommand>()));
-        aiPoints.add(new AIPoint(1750, 750, 50, 50, 2, new ArrayList<AICommand>()));
-        aiPoints.add(new AIPoint(1650, 400, 50,50,3,new ArrayList<AICommand>()));
-        aiPoints.add(new AIPoint(1450, 300, 50, 50, 4, new ArrayList<AICommand>()));
-        aiPoints.add(new AIPoint(750, 640, 50, 50, 5, new ArrayList<AICommand>()));
-        aiPoints.add(new AIPoint(604, 525, 50, 50, 6, new ArrayList<AICommand>()));
-        aiPoints.add(new AIPoint(600, 346, 50, 50, 7, new ArrayList<AICommand>()));
-        aiPoints.add(new AIPoint(377, 216, 50, 50, 8, new ArrayList<AICommand>()));
-        aiPoints.add(new AIPoint(173, 381, 50, 50, 9, new ArrayList<AICommand>()));
-        aiPoints.add(new AIPoint(177, 790, 50, 50, 10, new ArrayList<AICommand>()));
-        aiPoints.add(new AIPoint(350, 930, 50, 50, 11, new ArrayList<AICommand>()));
-        cars.add(new Car(500, 900));
-        //cars.add(new Car());
-        cars.add(new Car(350, 900));
+        aiPoints.add(new AIPoint(930 , 906, 50, 50, 0));
+        aiPoints.add(new AIPoint(1620, 920, 50, 50, 1));
+        aiPoints.add(new AIPoint(1750, 750, 50, 50, 2));
+        aiPoints.add(new AIPoint(1650, 400, 50, 50, 3));
+        aiPoints.add(new AIPoint(1450, 300, 50, 50, 4));
+        aiPoints.add(new AIPoint(750 , 640, 50, 50, 5));
+        aiPoints.add(new AIPoint(604 , 525, 50, 50, 6));
+        aiPoints.add(new AIPoint(600 , 346, 50, 50, 7));
+        aiPoints.add(new AIPoint(377 , 216, 50, 50, 8));
+        aiPoints.add(new AIPoint(173 , 381, 50, 50, 9));
+        aiPoints.add(new AIPoint(177 , 790, 50, 50, 10));
+        aiPoints.add(new AIPoint(350 , 930, 50, 50, 11));
+        cars.add(new Car(800, 950,"CarTex0.png"));
+        cars.add(new Car(750, 850,"CarTex1.png"));
+        cars.add(new Car(700, 950,"CarTex2.png"));
+        cars.add(new Car(650, 850, "CarTex3.png"));
         plyr = new PlayerController(cars.get(0));
-        //ai2 = new AIController(cars.get(1),aiPoints.get(0));
         ai = new AIController(cars.get(1),aiPoints.get(0));
+        ai2 = new AIController(cars.get(2),aiPoints.get(0));
+        ai3 = new AIController(cars.get(3),aiPoints.get(0));
         gameState = 2;
     }
 
@@ -462,7 +465,8 @@ public class Game extends ApplicationAdapter{
         plyr.drive();
         if(ai!=null) {
             ai.drive();
-            //ai2.drive();
+            ai2.drive();
+            ai3.drive();
         }
         for(Car car : cars){
             for(LapZone zone : zones){
