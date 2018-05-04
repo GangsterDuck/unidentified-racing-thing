@@ -72,8 +72,8 @@ public class AIController extends Controller {
 
         // Todo: Set up AI going at different speeds. based off the Points and stuff....
         // Decides direction to turn and turns the car
-        car.turn(Util.compareAngles(currentDegree,degree), 1.2);
+        car.turn(Util.compareAngles(currentDegree,degree), 1);
         // AI accelerates forward
-        car.accelerate(1);
+        car.accelerate(.74);
     }
 }

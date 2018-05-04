@@ -53,19 +53,19 @@ public class Game extends ApplicationAdapter{
     ArrayList<LapZone> zones = new ArrayList<LapZone>();
     ArrayList<String> loadCatcher = new ArrayList<String>();
     static ArrayList<AIPoint> aiPoints = new ArrayList<AIPoint>();//TODO: Redo?
+    int numPlayers = 0;
+    int numAI = 2;
 
     // IMPORTANT PROPERTIES
-    public static boolean showDebug = true;
-    AIController ai; //TODO: Remove
-    AIController ai2; //TODO: Remove
-    AIController ai3;
-    PlayerController plyr;
+    public static boolean showDebug = false;
+    ArrayList<Controller> controllers = new ArrayList<Controller>();
     int gameState = 1;
     /*   Game States:
          -1 : Dev Mode
           0 : Loading
           1 : Menus
           2 : Game
+          3 : Map Creation
      */
 
     @Override
@@ -93,114 +93,235 @@ public class Game extends ApplicationAdapter{
         matrix4.scl(SCALE);
 
         // GAME STUFF
-        if(gameState==-1) {
-            try {
-                mapLoad("TestWorld");
-            } catch (FileNotFoundException why) {
-                System.out.println(why);
-                System.out.println("ERROR");
-                gameState=1;
-            }
+        if(gameState==-1){
+            loadCatcher.add("map");
+            loadCatcher.add("TestWorld");
         }
-        if(gameState==1) { // Menus
-            try {
-                menuLoad("MainMenu");
-            }catch (FileNotFoundException ex){
-                System.out.println("Hope for redemption");
-            }
+        else if(gameState==1){
+            loadCatcher.add("menu");
+            loadCatcher.add("MainMenu");
         }
+        else if(gameState==3){
+            //TODO
+        }
+        loader(loadCatcher);
     }
 
     @Override
     public void render(){
-        doGraphics();
-        if(gameState == -1 || gameState == 2) { // Dev Mode or Game
-            if(!plyr.finished) {
-                physWorld.step(Gdx.graphics.getDeltaTime(), 6, 2);
-            }
-            gameTick();
-            if(plyr.finished){
-                if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)){
-                    gameState = 0;
-                    loadCatcher.add("menu");
-                    loadCatcher.add("MainMenu");
-                }
-            }
+        superDoGraphics();
+        superCheckInputs();
+        if(gameState == 2) { // Game
+            gamePlay();
         }
         else if(gameState == 1){ // Menus
-
+            menus();
         }
-        else if(gameState == 0){ // Loading
-            doGraphics();
-            if(loadCatcher.size()!=0){
-                if(loadCatcher.get(0).equalsIgnoreCase("menu")){
-                    try {
-                        menuLoad(loadCatcher.get(1));
-                    } catch (FileNotFoundException ex){
-                        System.out.println("May your hope survive");
-                    }
-                    loadCatcher.clear();
-                }
-                else if(loadCatcher.get(0).equalsIgnoreCase("map")){
-                    try {
-                        mapLoad(loadCatcher.get(1));
-                    } catch (FileNotFoundException ex){
-                        System.out.println("May your hope survive");
-                    }
-                    //cars.add(new Car());
-                    loadCatcher.clear();
-                }
-                else if(loadCatcher.get(0).equalsIgnoreCase("exit")){
-                    Gdx.app.exit();
-                }
+        else if(gameState == 3){ // Map Creation
+            mapCreator();
+        }
+        else{ // Loading
+            loader(loadCatcher);
+        }
 
+    }
+
+    //GAME STATE: ALL
+    /**
+     * Runs all graphics things, to get is out of render
+     */
+    public void superDoGraphics(){
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
+        Gdx.gl.glClearColor(.0f, 0.0f, 0.0f, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.begin();
+        for(GameTexture tex : background){
+            batch.draw(tex.texture,tex.x,tex.y);
+        }
+        batch.end();
+    }
+    /**
+     * Checks for all inputs, to get it out of render
+     */
+    public void superCheckInputs(){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+            showDebug = !showDebug;
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
+            Gdx.app.exit();
+        }
+    }
+
+
+    // GAME STATE: GAME
+    /**
+     * Does game stuff, to get it out of render
+     */
+    public void gamePlay(){
+        if(!controllers.get(0).finished) {
+            physWorld.step(Gdx.graphics.getDeltaTime(), 6, 2);
+        }
+        else {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) {
+                gameState = 0;
+                loadCatcher.add("menu");
+                loadCatcher.add("MainMenu");
             }
         }
-        else{ // TODO: Safety Net: Loads to main menu and resets game state to 1(Menu)
-            try{
+        for (Controller controller : controllers){
+            controller.drive();
+        }
+        for(Car car : cars){
+            for(LapZone zone : zones){
+                if(zone.isWithin(car.getX()/SCALE,car.getY()/SCALE)){
+                    if(car.zone==0 && zone.getZoneNum()==1){
+                        if(controllers.get(0).car == car){
+                            if(controllers.get(0).currentLaps==controllers.get(0).finishLaps){
+                                controllers.get(0).finished = true;
+                            }
+                            else {
+                                controllers.get(0).currentLaps++;
+                            }
+                        }
+                    }
+                    if(zone.getZoneNum()==0 || zone.getZoneNum()==1) {
+                        car.zone = zone.getZoneNum();
+                    }
+                }
+            }
+        }
+
+        gameGraphics();
+    }
+    /**
+     * Renders gameplay graphics
+     */
+    public void gameGraphics(){
+        batch.begin();
+        for (Car car : cars) {
+            batch.draw(car.getTexture(), car.getX(), car.getY(),
+                    car.getTexture().getWidth()/2, car.getTexture().getHeight()/2, car.getTexture().getWidth(), car.getTexture().getHeight(), 1, 1,
+                    car.getAngle(), 0, 0, car.getTexture().getWidth(),
+                    car.getTexture().getHeight(), false, false);
+        }
+        tempGUI.draw(batch, "LAPS", 1311, 700);
+        tempGUI.draw(batch, controllers.get(0).currentLaps+"/"+controllers.get(0).finishLaps, 1311,645);
+        if(controllers.get(0).finished){
+            tempGUI.draw(batch, "FINISH", 1000, 500);
+        }
+        if(showDebug){
+
+            for(AIPoint point : aiPoints){
+                batch.draw(point.getDebugTexture(),point.x1*SCALE,point.y1*SCALE);
+                batch.draw(point.getDebugTexture(),point.x2*SCALE-10,point.y2*SCALE-10);
+                batch.draw(point.getDebugTexture(),point.x1*SCALE,point.y2*SCALE-10);
+                batch.draw(point.getDebugTexture(),point.x2*SCALE-10,point.y1*SCALE);
+                forDebug.draw(batch, "P"+ point.pointNum,point.midx*SCALE-10,point.midy*SCALE+5);
+            }
+            for(LapZone zone : zones){
+                batch.draw(zone.getDebugTexture(),zone.x1*SCALE,zone.y1*SCALE);
+                batch.draw(zone.getDebugTexture(),zone.x2*SCALE-10,zone.y2*SCALE-10);
+                batch.draw(zone.getDebugTexture(),zone.x1*SCALE,zone.y2*SCALE-10);
+                batch.draw(zone.getDebugTexture(),zone.x2*SCALE-10,zone.y1*SCALE);
+                forDebug.draw(batch, "Zone "+zone.getZoneNum(),zone.midx*SCALE-10, zone.midy*SCALE);
+            }
+            if(cars.size()>0){
+                forDebug.draw(batch, "Zone: "+cars.get(0).zone,10,120);
+            }
+
+            forDebug.draw(batch,"Debug On", 10,20);
+            forDebug.draw(batch, "MouseX: "+Gdx.input.getX(),10,80);
+            forDebug.draw(batch, "MouseY: "+(1080-Gdx.input.getY()),10,100);
+
+            batch.end();
+            physDebugRenderer.render(physWorld,matrix4);
+
+        }
+        else {
+            batch.end();
+        }
+    }
+
+
+    // GAME STATE: MENUS
+    /**
+     * Runs Menus Basically
+     */
+    public void menus(){
+        int x = Gdx.input.getX();
+        int y = 1080-Gdx.input.getY();
+        for(MenuButton mb : menuButtons){
+            if(mb.checkWithin(x,y)){
+                if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
+                    gameState = 0;
+                    loadCatcher = mb.getLoadType();
+                }
+            }
+        }
+        batch.begin();
+        for(MenuButton mb : menuButtons) {
+                batch.draw(mb.getCurrentTexture(),mb.x1,mb.y1);
+        }
+        batch.end();
+    }
+
+
+    // GAME STATE: LOADING
+    /**
+     * Loading Game State
+     * @param load an array list of the style of loading and the name of the item to load.
+     */
+    public void loader(ArrayList<String> load){
+        lastStateClear();
+
+        boolean loadFailed = false;
+        if(load.size()!=0){
+            if(load.get(0).equalsIgnoreCase("MAP")){
+                try {
+                    mapLoad(loadCatcher.get(1), numPlayers, numAI);
+                } catch (FileNotFoundException ex){
+                    loadFailed = true;
+                }
+            }
+            else if(load.get(0).equalsIgnoreCase("MAPCREATE")){
+                //TODO
+            }
+            else if(load.get(0).equalsIgnoreCase("MENU")){
+                try {
+                    menuLoad(loadCatcher.get(1));
+                } catch (FileNotFoundException ex){
+                    loadFailed=true;
+                }
+            }
+            else if(load.get(0).equalsIgnoreCase("EXIT")){
+                Gdx.app.exit();
+            }
+            else{
+                loadFailed=true;
+            }
+        }
+        else{
+            loadFailed = true;
+        }
+
+        load.clear();
+        //Emergency Catcher
+        if(loadFailed){
+            try {
                 menuLoad("MainMenu");
-                gameState=1;
             }catch (FileNotFoundException ex){
-                System.out.print(ex);
                 Gdx.app.exit();
             }
         }
-
-        checkInputs();
     }
-
     /**
      * Loads Map from files
      * TODO: Fix this you dolt, WIP
      * @param mapName The maps folder name, Ex: TestWorld
      * @throws FileNotFoundException One of the files looked up is not Found
      */
-    public void mapLoad(String mapName) throws FileNotFoundException{
-        // Last Map Parts Removal - Needed so they are not in the way in the new map
-        for(MenuButton button : menuButtons){
-            button.destroy();
-        }
-        menuButtons.clear();
-        for(Wall wall : walls){
-            wall.destroyBody();
-        }
-        walls.clear();
-        for(Car car : cars){
-            car.destroy();
-        }
-        cars.clear();
-        for(GameTexture tex : background){
-            tex.destroy();
-        }
-        background.clear();
-        for(GameTexture tex : foreground){
-            tex.destroy();
-        }
-        foreground.clear();
-        zones.clear();
-        //winLaps = 3;
-        //finished = false;
-
+    public void mapLoad(String mapName, int players, int ai) throws FileNotFoundException{
         // Texture Loading
         // Gets .txt file that has the names and places for all of the Maps textures
         Scanner scan = new Scanner(new File("levels\\"+mapName+"\\WorldTextures.txt"));
@@ -248,11 +369,11 @@ public class Game extends ApplicationAdapter{
             }
             if(splitZoneLine.length==5){
                 zones.add( new LapZone(
-                    Integer.parseInt(splitZoneLine[0]),
-                    Integer.parseInt(splitZoneLine[1]),
-                    Integer.parseInt(splitZoneLine[2]),
-                    Integer.parseInt(splitZoneLine[3]),
-                    Integer.parseInt(splitZoneLine[4])
+                        Integer.parseInt(splitZoneLine[0]),
+                        Integer.parseInt(splitZoneLine[1]),
+                        Integer.parseInt(splitZoneLine[2]),
+                        Integer.parseInt(splitZoneLine[3]),
+                        Integer.parseInt(splitZoneLine[4])
                 ));
             }
         }
@@ -270,48 +391,52 @@ public class Game extends ApplicationAdapter{
                 splitWallLine[i]=splitWallLine[i].trim();
             }
             // Creates Wall Object
-            if(splitWallLine.length==5){
-                walls.add(new Wall(
-                        Integer.parseInt(splitWallLine[0]),
-                        Integer.parseInt(splitWallLine[1]),
-                        Integer.parseInt(splitWallLine[2]),
-                        Integer.parseInt(splitWallLine[3]),
-                        Double.parseDouble(splitWallLine[4])));
+            if(splitWallLine[0].equalsIgnoreCase("R")) {
+                walls.add(new RectangleWall(
+                        Float.parseFloat(splitWallLine[1]),
+                        Float.parseFloat(splitWallLine[2]),
+                        Float.parseFloat(splitWallLine[3]),
+                        Float.parseFloat(splitWallLine[4]),
+                        Float.parseFloat(splitWallLine[5])));
             }
-            else if(splitWallLine.length==4){
-                walls.add(new Wall(
-                        Integer.parseInt(splitWallLine[0]),
-                        Integer.parseInt(splitWallLine[1]),
-                        Integer.parseInt(splitWallLine[2]),
-                        Integer.parseInt(splitWallLine[3]),
-                        0));
+            else if(splitWallLine[0].equalsIgnoreCase("C")){
+                walls.add(new CircleWall(
+                        Float.parseFloat(splitWallLine[1]),
+                        Float.parseFloat(splitWallLine[2]),
+                        Float.parseFloat(splitWallLine[3])));
             }
         }
         scan.close();
         aiPoints.clear();
-        aiPoints.add(new AIPoint(930 , 906, 50, 50, 0));
-        aiPoints.add(new AIPoint(1620, 920, 50, 50, 1));
-        aiPoints.add(new AIPoint(1750, 750, 50, 50, 2));
-        aiPoints.add(new AIPoint(1650, 400, 50, 50, 3));
-        aiPoints.add(new AIPoint(1450, 300, 50, 50, 4));
-        aiPoints.add(new AIPoint(750 , 640, 50, 50, 5));
-        aiPoints.add(new AIPoint(604 , 525, 50, 50, 6));
-        aiPoints.add(new AIPoint(600 , 346, 50, 50, 7));
-        aiPoints.add(new AIPoint(377 , 216, 50, 50, 8));
-        aiPoints.add(new AIPoint(173 , 381, 50, 50, 9));
-        aiPoints.add(new AIPoint(177 , 790, 50, 50, 10));
-        aiPoints.add(new AIPoint(350 , 930, 50, 50, 11));
-        cars.add(new Car(800, 950,"CarTex0.png"));
-        cars.add(new Car(750, 850,"CarTex1.png"));
-        cars.add(new Car(700, 950,"CarTex2.png"));
-        cars.add(new Car(650, 850, "CarTex3.png"));
-        plyr = new PlayerController(cars.get(0));
-        ai = new AIController(cars.get(1),aiPoints.get(0));
-        ai2 = new AIController(cars.get(2),aiPoints.get(0));
-        ai3 = new AIController(cars.get(3),aiPoints.get(0));
+        aiPoints.add(new AIPoint(930 , 906, 50, 250, 0));
+        aiPoints.add(new AIPoint(1620, 920, 50, 250, 1));
+        aiPoints.add(new AIPoint(1750, 750, 200, 50, 2));
+        aiPoints.add(new AIPoint(1650, 400, 200, 50, 3));
+        aiPoints.add(new AIPoint(1450, 300, 50, 250, 4));
+        aiPoints.add(new AIPoint(750 , 640, 50, 200, 5));
+        aiPoints.add(new AIPoint(604 , 525, 200, 50, 6));
+        aiPoints.add(new AIPoint(600 , 346, 200, 50, 7));
+        aiPoints.add(new AIPoint(377 , 216, 50, 250, 8));
+        aiPoints.add(new AIPoint(173 , 381, 250, 50, 9));
+        aiPoints.add(new AIPoint(177 , 790, 250, 50, 10));
+        aiPoints.add(new AIPoint(350 , 930, 50, 250, 11));
+
+        for(int i = 0; i < (players+ai); i++){
+            int x = 800 - 50*i;
+            int y = 950;
+            if(x%100!=0){
+                y = 850;
+            }
+            cars.add(new Car(x, y, "CarTex"+i%4+".png"));
+            if(i<players){
+                controllers.add(new PlayerController(cars.get(i)));
+            }
+            else{
+                controllers.add(new AIController(cars.get(i),aiPoints.get(0)));
+            }
+        }
         gameState = 2;
     }
-
     /**
      * Loads Menu from files
      * @param menuName The menus folder name, Ex: MainMenu
@@ -355,144 +480,53 @@ public class Game extends ApplicationAdapter{
             if(splitButtonLine.length == 8){
                 menuButtons.add(
                         new MenuButton(
-                           Integer.parseInt(splitButtonLine[0]),
-                           Integer.parseInt(splitButtonLine[1]),
-                           Integer.parseInt(splitButtonLine[2]),
-                           Integer.parseInt(splitButtonLine[3]),
-                           new Texture("menus\\"+menuName+"\\"+splitButtonLine[4]),
-                           new Texture("menus\\"+menuName+"\\"+splitButtonLine[5]),
-                           splitButtonLine[6],
-                           splitButtonLine[7]
+                                Integer.parseInt(splitButtonLine[0]),
+                                Integer.parseInt(splitButtonLine[1]),
+                                Integer.parseInt(splitButtonLine[2]),
+                                Integer.parseInt(splitButtonLine[3]),
+                                new Texture("menus\\"+menuName+"\\"+splitButtonLine[4]),
+                                new Texture("menus\\"+menuName+"\\"+splitButtonLine[5]),
+                                splitButtonLine[6],
+                                splitButtonLine[7]
                         ));
             }
         }
         scan.close();
         gameState = 1;
     }
-
     /**
-     * Runs all graphics things, to get is out of render
+     * Clears all objects from the last game state.
      */
-    public void doGraphics(){
-        camera.update();
-        batch.setProjectionMatrix(camera.combined);
-
-        Gdx.gl.glClearColor(.0f, 0.0f, 0.0f, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        batch.begin();
-        for(GameTexture tex : background){
-            batch.draw(tex.texture,tex.x,tex.y);
+    public void lastStateClear(){
+        // Last Map Parts Removal - Needed so they are not in the way in the new map
+        for(MenuButton button : menuButtons){
+            button.destroy();
         }
-        if(gameState==1){
-            for(MenuButton mb : menuButtons) {
-                batch.draw(mb.getCurrentTexture(),mb.x1,mb.y1);
-            }
+        menuButtons.clear();
+        for(Wall wall : walls){
+            wall.destroyBody();
         }
-        if(gameState==2 || gameState==-1) {
-            for (Car car : cars) {
-                batch.draw(car.getTexture(), car.getX(), car.getY(),
-                        car.getTexture().getWidth()/2, car.getTexture().getHeight()/2, car.getTexture().getWidth(), car.getTexture().getHeight(), 1, 1,
-                        car.getAngle(), 0, 0, car.getTexture().getWidth(),
-                        car.getTexture().getHeight(), false, false);
-            }
-            tempGUI.draw(batch, "LAPS", 1311, 700);
-            tempGUI.draw(batch, plyr.currentLaps+"/"+plyr.finishLaps, 1311,645);
-            if(plyr.finished){
-                tempGUI.draw(batch, "FINISH", 1000, 500);
-            }
-        }
-        if(showDebug){
-
-            for(AIPoint point : aiPoints){
-                batch.draw(point.getDebugTexture(),point.x1*SCALE,point.y1*SCALE);
-                batch.draw(point.getDebugTexture(),point.x2*SCALE-10,point.y2*SCALE-10);
-                batch.draw(point.getDebugTexture(),point.x1*SCALE,point.y2*SCALE-10);
-                batch.draw(point.getDebugTexture(),point.x2*SCALE-10,point.y1*SCALE);
-                forDebug.draw(batch, "P"+ point.pointNum,point.midx*SCALE-10,point.midy*SCALE+5);
-            }
-            for(LapZone zone : zones){
-                batch.draw(zone.getDebugTexture(),zone.x1*SCALE,zone.y1*SCALE);
-                batch.draw(zone.getDebugTexture(),zone.x2*SCALE-10,zone.y2*SCALE-10);
-                batch.draw(zone.getDebugTexture(),zone.x1*SCALE,zone.y2*SCALE-10);
-                batch.draw(zone.getDebugTexture(),zone.x2*SCALE-10,zone.y1*SCALE);
-                forDebug.draw(batch, "Zone "+zone.getZoneNum(),zone.midx*SCALE-10, zone.midy*SCALE);
-            }
-            if(cars.size()>0){
-                forDebug.draw(batch, "Zone: "+cars.get(0).zone,10,120);
-            }
-
-            forDebug.draw(batch,"Debug On", 10,20);
-            forDebug.draw(batch, "MouseX: "+Gdx.input.getX(),10,80);
-            forDebug.draw(batch, "MouseY: "+(1080-Gdx.input.getY()),10,100);
-
-            batch.end();
-            physDebugRenderer.render(physWorld,matrix4);
-
-        }
-        else {
-            batch.end();
-        }
-    }
-
-    /**
-     * Checks for all inputs, to get it out of render
-     */
-    public void checkInputs(){
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
-            showDebug = !showDebug;
-        }
-        if(gameState==1){
-            int x = Gdx.input.getX();
-            int y = 1080-Gdx.input.getY();
-            for(MenuButton mb : menuButtons){
-                if(mb.checkWithin(x,y)){
-                    if(Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
-                        gameState = 0;
-                        loadCatcher = mb.getLoadType();
-                    }
-                }
-            }
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)){
-            Gdx.app.exit();
-        }
-    }
-
-    /**
-     * Does game stuff, to get it out of render
-     */
-    public void gameTick(){
-        plyr.drive();
-        if(ai!=null) {
-            ai.drive();
-            ai2.drive();
-            ai3.drive();
-        }
+        walls.clear();
         for(Car car : cars){
-            for(LapZone zone : zones){
-                if(zone.isWithin(car.getX()/SCALE,car.getY()/SCALE)){
-                    if(car.zone==0 && zone.getZoneNum()==1){
-                        if(plyr.car == car){
-                            if(plyr.currentLaps==plyr.finishLaps){
-                                plyr.finished = true;
-                            }
-                            else {
-                                plyr.currentLaps++;
-                            }
-                        }
-                    }
-                    /*
-                    if(car.lapOn>winLaps){
-                        finished = true;
-                        car.lapOn = winLaps;
-                    }
-                     */
-                    if(zone.getZoneNum()==0 || zone.getZoneNum()==1) {
-                        car.zone = zone.getZoneNum();
-                    }
-                }
-            }
+            car.destroy();
         }
+        cars.clear();
+        for(GameTexture tex : background){
+            tex.destroy();
+        }
+        background.clear();
+        for(GameTexture tex : foreground){
+            tex.destroy();
+        }
+        foreground.clear();
+        zones.clear();
+        controllers.clear();
+    }
+
+
+    // GAME STATE: MAP CREATION
+    public void mapCreator(){
+
     }
 
     /**

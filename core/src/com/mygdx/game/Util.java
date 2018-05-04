@@ -15,10 +15,10 @@ public class Util {
         deg2 = deg2 + diff180;
         deg2 = Util.boundAngle(deg2);
 
-        if(deg2>210){
+        if(deg2>220){
             return -1;
         }
-        if(deg2<170){
+        if(deg2<140){
             return 1;
         }
         return 0;

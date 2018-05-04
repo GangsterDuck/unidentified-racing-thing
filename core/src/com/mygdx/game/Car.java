@@ -11,6 +11,12 @@ import static com.mygdx.game.Game.getPhysWorld;
 
 public class Car
 {
+    static final float DENSITY = 20f;
+    static final float FRICTION = 5f;
+    static final float RESTITUTION = .0001f;
+    static final float LINDAMPING = 1f;
+    static final float ANGDAMPING = 5f;
+
     String name;
     private Body body;
     static World physWorld;
@@ -37,12 +43,12 @@ public class Car
         rect.setAsBox(texture.getWidth()/2/SCALE,texture.getHeight()/2/SCALE);
         FixtureDef fDef = new FixtureDef();
         fDef.shape = rect;
-        fDef.density = 0.25f;
-        fDef.friction = 5f;
-        fDef.restitution = .001f;
+        fDef.density = DENSITY;
+        fDef.friction = FRICTION;
+        fDef.restitution = RESTITUTION;
         body.createFixture(fDef);
-        body.setLinearDamping(5f);
-        body.setAngularDamping(5f);
+        body.setLinearDamping(LINDAMPING);
+        body.setAngularDamping(ANGDAMPING);
         rect.dispose();
     }//DEPRECATED
 
@@ -62,12 +68,12 @@ public class Car
         rect.setAsBox(texture.getWidth()/2/SCALE,texture.getHeight()/2/SCALE);
         FixtureDef fDef = new FixtureDef();
         fDef.shape = rect;
-        fDef.density = 0.25f;
-        fDef.friction = 5f;
-        fDef.restitution = .0001f;
+        fDef.density = DENSITY;
+        fDef.friction = FRICTION;
+        fDef.restitution = RESTITUTION;
         body.createFixture(fDef);
-        body.setLinearDamping(5f);
-        body.setAngularDamping(5f);
+        body.setLinearDamping(LINDAMPING);
+        body.setAngularDamping(ANGDAMPING);
         rect.dispose();
     }
 
@@ -97,12 +103,12 @@ public class Car
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = rect;
         rect.dispose();
-        fixtureDef.density = .25f;
-        fixtureDef.friction = 5f;
-        fixtureDef.restitution = .0001f;
+        fixtureDef.density = DENSITY;
+        fixtureDef.friction = FRICTION;
+        fixtureDef.restitution = RESTITUTION;
         body.createFixture(fixtureDef);
-        body.setLinearDamping(5f);
-        body.setAngularDamping(5f);
+        body.setLinearDamping(LINDAMPING);
+        body.setAngularDamping(ANGDAMPING);
     }
 
     public void testFixture(){
@@ -138,7 +144,7 @@ public class Car
     public void accelerate(double str){
         double xAccelChange = -Math.sin(body.getAngle());
         double yAccelChange = Math.cos(body.getAngle());
-        body.setLinearVelocity((float) (body.getLinearVelocity().x + .25 * xAccelChange * str), (float) (body.getLinearVelocity().y + .25 * yAccelChange* str));
+        body.setLinearVelocity((float) (body.getLinearVelocity().x + .125 * xAccelChange * str), (float) (body.getLinearVelocity().y + .125 * yAccelChange* str));
     }
 
     /**
